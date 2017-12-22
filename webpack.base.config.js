@@ -2,7 +2,6 @@
  *  基本配置文件
  */
 const path = require('path');
-const webpack = require('webpack');
 const resolve = path.resolve;
 // extract-text-webpack-plugin插件，将组件中的CSS样式单独打包
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
@@ -29,8 +28,8 @@ module.exports = {
               fallback: 'vue-style-loader'
             }),
             css: ExtractTextPlugin.extract({
-              use: ['css-loader', 'autoprefixer-loader', 'less-loader'],
-              fallback: 'vue-style-loader'
+              use: ['css-loader', 'autoprefixer-loader', 'less-loader', 'postcss-loader'],
+              fallback: 'vue-style-loader!postcss-loader'
             })
           }
         }
@@ -54,8 +53,8 @@ module.exports = {
     {
       test: /\.css$/,
       use: ExtractTextPlugin.extract({
-        use: ['css-loader?minimize', 'autoprefixer-loader'],
-        fallback: 'style-loader'
+        use: ['css-loader?minimize', 'autoprefixer-loader', 'postcss-loader'],
+        fallback: 'style-loader!css-loader!postcss-loader'
       })
     },
     {

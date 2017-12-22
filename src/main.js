@@ -1,3 +1,4 @@
+'use strict'
 /**
   main.js 是整个项目脚本执行的入口
 */
@@ -9,15 +10,13 @@ import Routers from './router';
 import Util from './lib/util';
 import App from './app.vue';
 import 'iview/dist/styles/iview.css';
-import Vuex from 'vuex';
 import store from './store';
-
+import './lib/mock';
+import Cookie from 'js-cookie';
 
 // 注册插件
 Vue.use(VueRouter);
-Vue.use(Vuex);
 Vue.use(iView);
-
 
 // 路由配置
 const RouterConfig = {
@@ -37,13 +36,26 @@ router.afterEach((to, from, next) => {
   window.scrollTo(0, 0);
 });
 
-
-
 // 构建应用
 const app = new Vue({
   el: '#app',
   router: router,
   store: store,
-  render: init => init(App)
+  render: init => init(App),
+  created () {
+    this.checkLogin();
+  },
+  methods: {
+    checkLogin () {
+      if(!Cookie.get('session')){
+        console.log('没有登陆的用户');
+        this.$router.push('/login');
+      }else{
+        console.log('存在登陆用');
+      }
+    }
+  },
+  watch: {
+    '$route': 'checkLogin'
+  }
 });
-

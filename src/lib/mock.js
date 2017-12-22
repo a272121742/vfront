@@ -1,109 +1,47 @@
-/**
- *  模拟数据
- *  相关参考： http://mockjs.com/
- *  可视化工具： RAP
- *  接口文档生成器： swagger
- */
-
+import pathTo from 'path-to-regexp';
 import Mock from 'mockjs';
 import url from 'url';
 import qs from 'qs';
 
-const GET = 'get';
-const POST = 'post';
-const PUT = 'put';
-const DELETE = 'delete';
-const PATCH = 'patch';
-const parse = JSON.parse;
-
-// 设置延迟时间，用于模拟服务器延迟
-// Mock.setup({
-//   timeout: '500-1000'
-// });
-
-
-
-// 创建本地化数据, 可用于CRUD
-let users = Mock.mock({
-  "users|93": [{
-    "id": '@guid',
-    "name": 'name@increment',
-    // "passwd": '123456',
-    "age|18-65": 100,
-    "email": '@email'
-  }]
-}).users;
-
-// 查询单个数据
-Mock.mock(/\/api\/user\/[0-9a-zA-Z]{8}-[0-9a-zA-Z]{4}-[0-9a-zA-Z]{4}-[0-9a-zA-Z]{4}-[0-9a-zA-Z]{12}/, GET, options => {
-  let id = options.url.split('/')[3];
-  return {
-    user: users.find(user => user.id === id)
-  };
-});
-
-// 查询分页数据
-// get请求的数据都在url中
-Mock.mock(/\/api\/user+(\?{0,1}(([A-Za-z0-9-~]+\={0,1})([A-Za-z0-9-~]*)\&{0,1})*)$/, GET, options => {
-  let urlQuery = url.parse(options.url).query;
-  let params = qs.parse(urlQuery);
-  let beginIndex = params.offset;
-  let endIndex = params.offset + params.limit;
-  return {
-    users: users.filter((item, index) => {
-      return index >= beginIndex && index < endIndex;
-    })
-  };
-});
-
-// 新建数据
-Mock.mock('/api/user', POST, options => {
-  let user = parse(options.body).data;
-  user.id = Mock.mock('@guid');
-  users.unshift(user);
-  return {user: user};
-});
-
-// 删除数据
-Mock.mock(/api\/user\/[0-9a-zA-Z]{8}-[0-9a-zA-Z]{4}-[0-9a-zA-Z]{4}-[0-9a-zA-Z]{4}-[0-9a-zA-Z]{12}/, DELETE, options => {
-  let id = options.url.split('/')[3];
-  let index = users.findIndex(user => user.id === id);
-  users.splice(index, 1);
-  return {success: true};
-});
-
-// 更新数据（部分更新）
-Mock.mock(/api\/user\/[0-9a-zA-Z]{8}-[0-9a-zA-Z]{4}-[0-9a-zA-Z]{4}-[0-9a-zA-Z]{4}-[0-9a-zA-Z]{12}/, PATCH, options => {
-  let id = options.url.split('/')[3];
-  let newUser = parse(options.body).data;
-  let index = users.findIndex(user => user.id === id);
-  users.map((user, index) => {
-    if(user.id === id){
-      for(let i in newUser){
-        user[i] = newUser[i];
-      }
+let mock = {};
+const methods = ['get', 'post', 'patch', 'put', 'delete'];
+methods.forEach(type => {
+  mock[type] = (urlReqExpString, callback) => {
+    // 将url匹配表达式进行转换， 例如： /path/:id
+    let rurl = pathTo(urlReqExpString, [], {
+      // 不忽略大小写
+      sensitive: true
+    });
+    // 对get请求进行甄别，因为get请求有`?`参数
+    if (type === 'get') {
+      // 将url正则两边的`/`去掉，并追加`?`参数的正则校验
+      let urlString = rurl.toString().slice(1, -1).replace('$', '(\\?{0,1}((\\S+\\={1})(\\S+)\\&{0,1})*)$');
+      // 重新编译正则规则
+      rurl.compile(urlString);
     }
-  });
-  return {user: users[index]}
-});
 
-// 查询数据总量
-Mock.mock('/api/user/count', GET, {
-  "count": users.length
+    Mock.mock(rurl, type, (options) => {
+      // 获取Url模型
+      const urlSchema = url.parse(options.url);
+      // 拦截的占位符参数，去除`?`校验所带的四组括号，以及第一项url
+      let args = rurl.exec(urlSchema.pathname).slice(1, -4);
+      // get 提交参数
+      let params = qs.parse(urlSchema.query);
+      // post 提交参数
+      let datas;
+      try {
+        // 对报文进行JSON转换，如果转换失败，说明不是JSON格式，直接返回
+        datas = JSON.parse(options.body);
+      } catch (e) {
+        datas = options.body
+      }
+      args.push(type === 'get' ? params : datas);
+      const result = Mock.mock(callback.call(options, ...args));
+      return result === undefined ? {} : result;
+    });
+  };
 });
-// 批量业务
-Mock.mock('/api/user/batch-delete', POST, options => {
-  let data = parse(options.body);
-  let ids = data.data;
-  ids.forEach(id => {
-    let index = users.findIndex(user => user.id === id);
-    users.splice(index, 1);
-  });
-  return {success: true};
-});
-Mock.mock('/api/test', POST, {
-  success: true,
-  data: {},
-  status: 200,
-  msg:''
-});
+mock.setup = Mock.setup;
+mock.mock = Mock.mock;
+
+export default mock;
