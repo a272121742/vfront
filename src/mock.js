@@ -1,6 +1,6 @@
 "use strict"
 import axios from 'axios';
-import 'axios-response-logger';
+// import 'axios-response-logger';
 
 /**
  * Spin 全局加载动画

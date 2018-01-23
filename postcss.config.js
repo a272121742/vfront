@@ -1,5 +1,6 @@
 module.exports = {
-  plugins: [
-    require('autoprefixer')
-  ]
-};
+  "plugins": {
+    // to edit target browsers: use "browserslist" field in package.json
+    "autoprefixer": {}
+  }
+}

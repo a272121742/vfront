@@ -14,6 +14,7 @@ import store from './store';
 import './lib/mock';
 import Cookie from 'js-cookie';
 
+
 // 注册插件
 Vue.use(VueRouter);
 Vue.use(iView);
@@ -43,19 +44,19 @@ const app = new Vue({
   store: store,
   render: init => init(App),
   created () {
-    this.checkLogin();
+    // this.checkLogin();
   },
   methods: {
-    checkLogin () {
-      if(!Cookie.get('session')){
-        console.log('没有登陆的用户');
-        this.$router.push('/login');
-      }else{
-        console.log('存在登陆用');
-      }
-    }
+    // checkLogin () {
+    //   if(!Cookie.get('session')){
+    //     console.log('没有登陆的用户');
+    //     this.$router.push('/login');
+    //   }else{
+    //     console.log('存在登陆用');
+    //   }
+    // }
   },
   watch: {
-    '$route': 'checkLogin'
+    // '$route': 'checkLogin'
   }
 });

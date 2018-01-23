@@ -10,16 +10,17 @@ methods.forEach(type => {
     // 将url匹配表达式进行转换， 例如： /path/:id
     let rurl = pathTo(urlReqExpString, [], {
       // 不忽略大小写
-      sensitive: true
+      sensitive: true,
+      strict: true
     });
     // 对get请求进行甄别，因为get请求有`?`参数
     if (type === 'get') {
       // 将url正则两边的`/`去掉，并追加`?`参数的正则校验
-      let urlString = rurl.toString().slice(1, -1).replace('$', '(\\?{0,1}((\\S+\\={1})(\\S+)\\&{0,1})*)$');
+      let urlString = rurl.toString().slice(1, -1).replace('$', '\\/{0,1}(\\?{0}|\\?{1}((\\S+\\={1})(\\S+)\\&{0,1})*)$');
+      // let urlString = rurl.toString().slice(1, -1).replace('$', '(\\?{0,1}((\\S+\\={1})(\\S+)\\&{0,1})*)$');
       // 重新编译正则规则
       rurl.compile(urlString);
     }
-
     Mock.mock(rurl, type, (options) => {
       // 获取Url模型
       const urlSchema = url.parse(options.url);

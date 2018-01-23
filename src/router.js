@@ -1,6 +1,4 @@
-'use strict'
-// import userlist from './views/user-list.vue';
-// const req = require.context('./views', true, /\.vue$/);
+'use strict';
 
 const use = (...files) => resolve => require.ensure([], () => {
   files.forEach(file => {
@@ -15,6 +13,6 @@ const routers = [
       title: ''
     },
     component: resolve => require(['./app.vue'], resolve)
-  }
+  },
 ];
 export default routers;
