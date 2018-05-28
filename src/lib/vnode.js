@@ -1,6 +1,7 @@
-export function cloneVNodes (vnodes, createElement) {
-  function cloneVNode (vnode) {
-    const clonedChildren = vnode.children && vnode.children.map(vnode => cloneVNode(vnode));
+export function cloneVNodes(vnodes, createElement) {
+  function cloneVNode(vnode) {
+    const clonedChildren =
+      vnode.children && vnode.children.map(vnode => cloneVNode(vnode));
     const cloned = createElement(vnode.tag, vnode.data, clonedChildren);
     cloned.text = vnode.text;
     cloned.isComment = vnode.isComment;
@@ -14,4 +15,4 @@ export function cloneVNodes (vnodes, createElement) {
   }
   const clonedVNodes = vnodes.map(vnode => cloneVNode(vnode));
   return clonedVNodes;
-};
+}

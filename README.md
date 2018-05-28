@@ -1,26 +1,30 @@
-# vfront
+# vfront10
 
-该前端架构基于vue.js
+> A Vue.js project
 
-## 安装
+## Build Setup
 
-```bush
-// 安装依赖
+``` bash
+# install dependencies
 npm install
-```
-## 运行
 
-### 开发模式
-
-```bush
-// 第一次运行时，生成index.html文件
-npm run init
-// 开发模式下运行
+# serve with hot reload at localhost:8080
 npm run dev
-```
-### 生产模式
 
-```bush
+# build for production with minification
 npm run build
+
+# build for production and view the bundle analyzer report
+npm run build --report
+
+# run unit tests
+npm run unit
+
+# run e2e tests
+npm run e2e
+
+# run all tests
+npm test
 ```
 
+For a detailed explanation on how things work, check out the [guide](http://vuejs-templates.github.io/webpack/) and [docs for vue-loader](http://vuejs.github.io/vue-loader).

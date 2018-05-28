@@ -1,19 +1,33 @@
 {
+  // 制定转码规则
   "presets": [
-    ["env", {
-      "modules": false,
-      "targets": {
-        "browsers": ["> 1%", "last 2 versions", "not ie <= 8"]
+    // env是使用`babel-preset-env`插件将js进行转码成es5
+    [
+      "env",
+      {
+        // 设置不转码AMD、COMMONJS模块
+        "modules": false,
+        // 制定浏览器的兼容性
+        "targets": {
+          "browsers": ["> 1%", "last 2 versions", "not ie <= 8"]
+        }
       }
-    }],
+    ],
+    // http://www.css88.com/archives/8345
+    "airbnb",
     "es2015",
     "stage-3",
     "vue"
   ],
   "plugins": [
-    "transform-vue-jsx", 
-    "transform-runtime", 
-    "transform-object-rest-spread"
+    // 允许js运行时编译es6
+    "transform-runtime",
+    // 使得js可以使用jsx语法
+    "transform-vue-jsx",
+    // 允许使用es6展开运算符（...Array）
+    "transform-object-rest-spread",
+    // 允许使用动态import语法
+    "syntax-dynamic-import",
   ],
   "comments": false,
   "env": {
