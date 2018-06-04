@@ -2,7 +2,7 @@
 import pathTo from 'path-to-regexp';
 import MockAdapter from 'axios-mock-adapter';
 import Mock from 'mockjs';
-import {instance} from '@/lib/ajax';
+import { instance } from '@/lib/ajax';
 import url from 'url';
 import qs from 'qs';
 
@@ -31,7 +31,7 @@ httpMethods.forEach((type) => {
       // 重新编译正则规则
       rurl.compile(urlString);
     }
-    AdapterMock[mockMethod](rurl).reply(config => {
+    AdapterMock[mockMethod](rurl).reply(async config => {
       const urlSchema = url.parse(config.url);
       // 拦截的占位符参数，去除`?`校验所带的四组括号，以及第一项url
       const argsArr = rurl.exec(urlSchema.pathname);
@@ -47,7 +47,7 @@ httpMethods.forEach((type) => {
         datas = config.data;
       }
       args.push(type === 'get' ? params : datas);
-      const result = Mock.mock(callback.call(config, ...args));
+      const result = Mock.mock(await callback.call(config, ...args));
       // return result === undefined ? {} : result;
       return new Promise((resolve, reject) => {
         setTimeout(() => {
