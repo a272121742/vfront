@@ -15,6 +15,8 @@ const CopyWebpackPlugin = require('copy-webpack-plugin');
 const FriendlyErrorsPlugin = require('friendly-errors-webpack-plugin');
 // 打包可视化分析视图
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
+// 自动DLL打包插件
+const AutoDllPlugin = require('autodll-webpack-plugin');
 // 通过webpack-merge实现webpack.dev.conf.js对wepack.base.config.js的继承
 const merge = require('webpack-merge');
 // 加载webpack基础配置
@@ -76,9 +78,14 @@ const devWebpackConfig = merge(webpackBaseConfig, {
     new HtmlWebpackPlugin({
       title: 'vfront' + package.version,
       template: './index.html',
-      // filename: './index.html',
       // true或者body表示生成代码注入到body中，head表示注入到head中，false表示不注入
-      inject: false
+      inject: true,
+      chunksSortMode: function(chunk1, chunk2) {
+        var order = ['mock', 'main'];
+        var order1 = order.indexOf(chunk1.names[0]);
+        var order2 = order.indexOf(chunk2.names[0]);
+        return order1 - order2; 
+      }
     }),
     // 配置全局常量
     new webpack.DefinePlugin({
@@ -99,7 +106,25 @@ const devWebpackConfig = merge(webpackBaseConfig, {
       from: path.resolve(__dirname, '../src/static'),
       to: config.dev.assetsSubDirectory,
       ignore: ['.*']
-    }])
+    }]),
+    // 自动DLL策略
+    new AutoDllPlugin({
+      inject: true,
+      context: resolve('src'),
+      filename: '[name].dll.js',
+      entry: {
+        vendor: ['vue', 'vue-router', 'vuex', 'iview', 'echarts', 'axios']
+      },
+      plugins: [
+        new webpack.optimize.UglifyJsPlugin({
+          mangle: true,
+          exclude: /\.min\.js$/,
+          compress: false,
+          sourceMap: false,
+          parallel: true,
+        })
+      ]
+    }),
   ],
   /**
    * 服务器配置
